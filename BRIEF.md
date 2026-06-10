@@ -114,3 +114,7 @@
     2. STOP, wait for my prompt before continuing.
     3. build a SQLite seet script using faker.js, generate the fake data, then seed the database.
     4. STOP, wait for my prompt before continuing.
+    5. Do code cleanup. remove any files that are part of the boiler-plate application scaffolding that we will not need.
+    6. STOP, wait for my prompt before continuing.
+    7. Build out the layout for the UI using placeholders; don't connect the charts to the data yet, in fact, don't even use charts, just use blank containers where charts and stuff will eventually go.
+    8. STOP, wait for my prompt before continuing. I want to approve the layout and composition before we connect the UI to the database.
