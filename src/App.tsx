@@ -488,7 +488,6 @@ function App() {
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2 }}>
-                Primary Chart:{' '}
                 {metricMode === 'revenue'
                   ? 'Revenue'
                   : metricMode === 'orderCount'
@@ -525,7 +524,7 @@ function App() {
             <Card sx={{ flex: 1 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Supporting Chart: Order Count by Segment
+                  Order Count by Segment
                 </Typography>
                 <Box sx={supportingChartSx}>
                   <Bar
@@ -538,7 +537,7 @@ function App() {
             <Card sx={{ flex: 1 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Supporting Chart: Average Order Value by Segment
+                  Average Order Value by Segment
                 </Typography>
                 <Box sx={supportingChartSx}>
                   <Bar
@@ -565,7 +564,7 @@ function App() {
             <Card sx={{ flex: 1 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Supporting Chart: Revenue by Tile Category
+                  Revenue by Tile Category
                 </Typography>
                 <Box sx={supportingChartSx}>
                   <Doughnut
@@ -579,7 +578,7 @@ function App() {
             <Card sx={{ flex: 1 }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2 }}>
-                  Supporting Chart: Project Type Distribution
+                  Project Type Distribution
                 </Typography>
                 <Box sx={supportingChartSx}>
                   <Bar
