@@ -304,6 +304,9 @@ function App() {
     }
   }, [filteredRecords])
 
+  const primaryChartSx = { height: { xs: 260, md: 220 }, maxHeight: 800 }
+  const supportingChartSx = { height: { xs: 220, md: 180 }, maxHeight: 800 }
+
   return (
     <Box sx={{ pb: 6 }}>
       <Box className="heroPanel" sx={{ py: 7, mb: 4 }}>
@@ -493,27 +496,28 @@ function App() {
                     : 'Average Order Value'}{' '}
                 over Time
               </Typography>
-              <Line
-                data={primarySeries}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  interaction: { mode: 'index', intersect: false },
-                  plugins: {
-                    tooltip: {
-                      callbacks: {
-                        label: (ctx) => {
-                          const label = `${ctx.dataset.label}: `
-                          return metricMode === 'revenue' || metricMode === 'avgOrderValue'
-                            ? label + formatCurrency(Number(ctx.parsed.y))
-                            : label + Number(ctx.parsed.y).toLocaleString()
+              <Box sx={primaryChartSx}>
+                <Line
+                  data={primarySeries}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: (ctx) => {
+                            const label = `${ctx.dataset.label}: `
+                            return metricMode === 'revenue' || metricMode === 'avgOrderValue'
+                              ? label + formatCurrency(Number(ctx.parsed.y))
+                              : label + Number(ctx.parsed.y).toLocaleString()
+                          },
                         },
                       },
                     },
-                  },
-                }}
-                height={120}
-              />
+                  }}
+                />
+              </Box>
             </CardContent>
           </Card>
 
@@ -523,11 +527,12 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Supporting Chart: Order Count by Segment
                 </Typography>
-                <Bar
-                  data={orderCountByType}
-                  options={{ responsive: true, maintainAspectRatio: false }}
-                  height={175}
-                />
+                <Box sx={supportingChartSx}>
+                  <Bar
+                    data={orderCountByType}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                  />
+                </Box>
               </CardContent>
             </Card>
             <Card sx={{ flex: 1 }}>
@@ -535,22 +540,23 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Supporting Chart: Average Order Value by Segment
                 </Typography>
-                <Bar
-                  data={avgOrderValueByType}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      tooltip: {
-                        callbacks: {
-                          label: (ctx) =>
-                            `${ctx.dataset.label}: ${formatCurrency(Number(ctx.parsed.y))}`,
+                <Box sx={supportingChartSx}>
+                  <Bar
+                    data={avgOrderValueByType}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        tooltip: {
+                          callbacks: {
+                            label: (ctx) =>
+                              `${ctx.dataset.label}: ${formatCurrency(Number(ctx.parsed.y))}`,
+                          },
                         },
                       },
-                    },
-                  }}
-                  height={175}
-                />
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </Stack>
@@ -561,11 +567,12 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Supporting Chart: Revenue by Tile Category
                 </Typography>
-                <Doughnut
-                  data={revenueByCategory}
-                  options={{ responsive: true, maintainAspectRatio: false }}
-                  height={190}
-                />
+                <Box sx={supportingChartSx}>
+                  <Doughnut
+                    data={revenueByCategory}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                  />
+                </Box>
               </CardContent>
             </Card>
 
@@ -574,15 +581,16 @@ function App() {
                 <Typography variant="h6" sx={{ mb: 2 }}>
                   Supporting Chart: Project Type Distribution
                 </Typography>
-                <Bar
-                  data={projectDistribution}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                  }}
-                  height={190}
-                />
+                <Box sx={supportingChartSx}>
+                  <Bar
+                    data={projectDistribution}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: { legend: { position: 'bottom' } },
+                    }}
+                  />
+                </Box>
               </CardContent>
             </Card>
           </Stack>
