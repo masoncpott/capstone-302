@@ -1,4 +1,5 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import Database from 'better-sqlite3'
@@ -7,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const projectRoot = path.resolve(__dirname, '..')
 const dbPath = path.join(projectRoot, 'data', 'tile_sales.db')
+const distPath = path.join(projectRoot, 'dist')
 
 const db = new Database(dbPath, { readonly: true })
 const app = express()
@@ -38,6 +40,14 @@ app.get('/api/orders', (_req, res) => {
 
   res.json(rows)
 })
+
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+
+  app.get(/.*/, (_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
 
 app.listen(port, () => {
   console.log(`SQLite API listening on http://localhost:${port}`)

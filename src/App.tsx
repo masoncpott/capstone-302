@@ -94,10 +94,17 @@ function App() {
     const run = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/orders')
+        let res = await fetch('/api/orders')
+
+        // Deployment fallback for static hosts that do not proxy /api.
+        if (!res.ok) {
+          res = await fetch('/orders.json')
+        }
+
         if (!res.ok) {
           throw new Error(`Failed to load orders (${res.status})`)
         }
+
         const rows = (await res.json()) as OrderRecord[]
         setRecords(rows)
         setError(null)
@@ -330,9 +337,7 @@ function App() {
             </Card>
           )}
 
-          {error && (
-            <Alert severity="error">{error}. Start both services with npm run dev:full.</Alert>
-          )}
+          {error && <Alert severity="error">{error}. Check API or static data export.</Alert>}
 
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <Card sx={{ flex: 1 }}>

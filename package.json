@@ -7,7 +7,9 @@
     "dev": "vite",
     "dev:api": "node server/index.mjs",
     "dev:full": "concurrently -k \"npm:dev:api\" \"npm:dev\"",
+    "prebuild": "node scripts/export-orders-json.mjs",
     "build": "tsc -b && vite build",
+    "start": "node server/index.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "db:seed": "node scripts/seed-sqlite.mjs"
