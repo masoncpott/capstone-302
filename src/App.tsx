@@ -1,84 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Alert,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Container,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material'
-import {
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Filler,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  Tooltip,
-} from 'chart.js'
-import { Bar, Doughnut, Line } from 'react-chartjs-2'
+import { Alert, Box, Card, CardContent, CircularProgress, Container, Stack, Typography } from '@mui/material'
+import type { ChartData } from 'chart.js'
 import './App.css'
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Filler,
-)
-
-type CustomerType = 'residential' | 'commercial'
-type CustomerFilter = 'all' | CustomerType
-type MetricMode = 'revenue' | 'orderCount' | 'avgOrderValue'
-
-type OrderRecord = {
-  order_date: string
-  customer_type: CustomerType
-  project_type: string
-  tile_category: string
-  order_quantity: number
-  revenue: number
-  region: string
-  order_size_classification: string
-  lead_time_days: number
-}
-
-const formatLabel = (value: string) =>
-  value
-    .split(' ')
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(' ')
-
-const MONTH_FORMATTER = new Intl.DateTimeFormat('en-US', {
-  month: 'short',
-  year: '2-digit',
-})
-
-const toMonthKey = (dateString: string) => dateString.slice(0, 7)
-const parseMonth = (monthKey: string) => new Date(`${monthKey}-01T00:00:00`)
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(value)
+import './chartSetup'
+import type { CustomerFilter, CustomerType, MetricMode, OrderRecord } from './types'
+import { formatLabel, MONTH_FORMATTER, toMonthKey, parseMonth } from './utils'
+import HeroPanel from './components/HeroPanel'
+import KpiCards from './components/KpiCards'
+import FiltersPanel from './components/FiltersPanel'
+import PrimaryLineChart from './components/PrimaryLineChart'
+import OrderCountChart from './components/OrderCountChart'
+import AvgOrderValueChart from './components/AvgOrderValueChart'
+import RevenueByCategoryChart from './components/RevenueByCategoryChart'
+import ProjectDistributionChart from './components/ProjectDistributionChart'
+import WrittenInsight from './components/WrittenInsight'
 
 function App() {
   const [records, setRecords] = useState<OrderRecord[]>([])
@@ -304,28 +239,9 @@ function App() {
     }
   }, [filteredRecords])
 
-  const primaryChartSx = { height: { xs: 260, md: 220 }, maxHeight: 800 }
-  const supportingChartSx = { height: { xs: 220, md: 180 }, maxHeight: 800 }
-
   return (
     <Box sx={{ pb: 6 }}>
-      <Box className="heroPanel" sx={{ py: 7, mb: 4 }}>
-        <Container maxWidth="lg">
-          <Stack spacing={2.5}>
-            <Chip
-              label="Tile Sales Narrative Prototype"
-              sx={{ width: 'fit-content', bgcolor: 'rgba(255,255,255,0.7)' }}
-            />
-            <Typography variant="h3" sx={{ fontWeight: 700 }}>
-              Commercial projects drive fewer orders but much higher revenue.
-            </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 860 }}>
-              Residential demand creates steady weekly activity while large commercial project orders
-              create outsized revenue swings.
-            </Typography>
-          </Stack>
-        </Container>
-      </Box>
+      <HeroPanel />
 
       <Container maxWidth="lg">
         <Stack spacing={3}>
@@ -342,279 +258,42 @@ function App() {
 
           {error && <Alert severity="error">{error}. Check API or static data export.</Alert>}
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  Total Revenue
-                </Typography>
-                <Typography variant="h4">{formatCurrency(topLine.totalRevenue)}</Typography>
-              </CardContent>
-            </Card>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  Total Orders
-                </Typography>
-                <Typography variant="h4">{topLine.totalOrders}</Typography>
-              </CardContent>
-            </Card>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  Average Order Value
-                </Typography>
-                <Typography variant="h4">{formatCurrency(topLine.avgOrderValue)}</Typography>
-              </CardContent>
-            </Card>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  Commercial Revenue Share
-                </Typography>
-                <Typography variant="h4">{topLine.commercialShare.toFixed(1)}%</Typography>
-              </CardContent>
-            </Card>
-          </Stack>
+          <KpiCards topLine={topLine} />
 
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Filters
-              </Typography>
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel id="customer-filter-label">Customer Type</InputLabel>
-                  <Select
-                    labelId="customer-filter-label"
-                    value={customerFilter}
-                    label="Customer Type"
-                    onChange={(e) => setCustomerFilter(e.target.value as CustomerFilter)}
-                  >
-                    <MenuItem value="all">All</MenuItem>
-                    <MenuItem value="residential">Residential</MenuItem>
-                    <MenuItem value="commercial">Commercial</MenuItem>
-                  </Select>
-                </FormControl>
+          <FiltersPanel
+            customerFilter={customerFilter}
+            setCustomerFilter={setCustomerFilter}
+            tileFilter={tileFilter}
+            setTileFilter={setTileFilter}
+            projectFilter={projectFilter}
+            setProjectFilter={setProjectFilter}
+            metricMode={metricMode}
+            setMetricMode={setMetricMode}
+            startMonth={startMonth}
+            setStartMonth={setStartMonth}
+            endMonth={endMonth}
+            setEndMonth={setEndMonth}
+            allMonthKeys={allMonthKeys}
+            tileCategories={tileCategories}
+            projectTypes={projectTypes}
+          />
 
-                <FormControl fullWidth>
-                  <InputLabel id="tile-filter-label">Tile Category</InputLabel>
-                  <Select
-                    labelId="tile-filter-label"
-                    value={tileFilter}
-                    label="Tile Category"
-                    onChange={(e) => setTileFilter(e.target.value)}
-                  >
-                    {tileCategories.map((category) => (
-                      <MenuItem key={category} value={category}>
-                        {category === 'all' ? 'All' : category}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl fullWidth>
-                  <InputLabel id="project-filter-label">Project Type</InputLabel>
-                  <Select
-                    labelId="project-filter-label"
-                    value={projectFilter}
-                    label="Project Type"
-                    onChange={(e) => setProjectFilter(e.target.value)}
-                  >
-                    {projectTypes.map((project) => (
-                      <MenuItem key={project} value={project}>
-                        {project === 'all' ? 'All' : project}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Stack>
-
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mt: 2 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="start-month-label">Start Month</InputLabel>
-                  <Select
-                    labelId="start-month-label"
-                    value={startMonth}
-                    label="Start Month"
-                    onChange={(e) => setStartMonth(e.target.value)}
-                  >
-                    {allMonthKeys.map((monthKey) => (
-                      <MenuItem key={monthKey} value={monthKey}>
-                        {MONTH_FORMATTER.format(parseMonth(monthKey))}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl fullWidth>
-                  <InputLabel id="end-month-label">End Month</InputLabel>
-                  <Select
-                    labelId="end-month-label"
-                    value={endMonth}
-                    label="End Month"
-                    onChange={(e) => setEndMonth(e.target.value)}
-                  >
-                    {allMonthKeys.map((monthKey) => (
-                      <MenuItem key={monthKey} value={monthKey}>
-                        {MONTH_FORMATTER.format(parseMonth(monthKey))}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Box sx={{ width: '100%' }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Primary Metric
-                  </Typography>
-                  <ToggleButtonGroup
-                    value={metricMode}
-                    exclusive
-                    fullWidth
-                    onChange={(_event, next: MetricMode | null) => {
-                      if (next) setMetricMode(next)
-                    }}
-                    size="small"
-                  >
-                    <ToggleButton value="revenue">Revenue</ToggleButton>
-                    <ToggleButton value="orderCount">Order Count</ToggleButton>
-                    <ToggleButton value="avgOrderValue">AOV</ToggleButton>
-                  </ToggleButtonGroup>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                {metricMode === 'revenue'
-                  ? 'Revenue'
-                  : metricMode === 'orderCount'
-                    ? 'Order Count'
-                    : 'Average Order Value'}{' '}
-                over Time
-              </Typography>
-              <Box sx={primaryChartSx}>
-                <Line
-                  data={primarySeries}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                      tooltip: {
-                        callbacks: {
-                          label: (ctx) => {
-                            const label = `${ctx.dataset.label}: `
-                            return metricMode === 'revenue' || metricMode === 'avgOrderValue'
-                              ? label + formatCurrency(Number(ctx.parsed.y))
-                              : label + Number(ctx.parsed.y).toLocaleString()
-                          },
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
+          <PrimaryLineChart
+            data={primarySeries as ChartData<'line'>}
+            metricMode={metricMode}
+          />
 
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Order Count by Segment
-                </Typography>
-                <Box sx={supportingChartSx}>
-                  <Bar
-                    data={orderCountByType}
-                    options={{ responsive: true, maintainAspectRatio: false }}
-                  />
-                </Box>
-              </CardContent>
-            </Card>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Average Order Value by Segment
-                </Typography>
-                <Box sx={supportingChartSx}>
-                  <Bar
-                    data={avgOrderValueByType}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        tooltip: {
-                          callbacks: {
-                            label: (ctx) =>
-                              `${ctx.dataset.label}: ${formatCurrency(Number(ctx.parsed.y))}`,
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-              </CardContent>
-            </Card>
+            <OrderCountChart data={orderCountByType as ChartData<'bar'>} />
+            <AvgOrderValueChart data={avgOrderValueByType as ChartData<'bar'>} />
           </Stack>
 
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Revenue by Tile Category
-                </Typography>
-                <Box sx={supportingChartSx}>
-                  <Doughnut
-                    data={revenueByCategory}
-                    options={{ responsive: true, maintainAspectRatio: false }}
-                  />
-                </Box>
-              </CardContent>
-            </Card>
-
-            <Card sx={{ flex: 1 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Project Type Distribution
-                </Typography>
-                <Box sx={supportingChartSx}>
-                  <Bar
-                    data={projectDistribution}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: { legend: { position: 'bottom' } },
-                    }}
-                  />
-                </Box>
-              </CardContent>
-            </Card>
+            <RevenueByCategoryChart data={revenueByCategory as ChartData<'doughnut'>} />
+            <ProjectDistributionChart data={projectDistribution as ChartData<'bar'>} />
           </Stack>
 
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Written Insight
-              </Typography>
-              <Stack spacing={1.5}>
-                <Alert severity="info">
-                  Commercial volume is lower by count but dominates revenue due to high-value project
-                  orders.
-                </Alert>
-                <Alert severity="warning">
-                  Residential order activity remains more frequent across months, reinforcing baseline
-                  operational demand.
-                </Alert>
-                <Alert severity="success">
-                  Customer mix and project profile together explain why order count and revenue trends
-                  can diverge.
-                </Alert>
-              </Stack>
-            </CardContent>
-          </Card>
+          <WrittenInsight />
         </Stack>
       </Container>
     </Box>
