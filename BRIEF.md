@@ -118,3 +118,4 @@
     6. STOP, wait for my prompt before continuing.
     7. Build out the layout for the UI using placeholders; don't connect the charts to the data yet, in fact, don't even use charts, just use blank containers where charts and stuff will eventually go.
     8. STOP, wait for my prompt before continuing. I want to approve the layout and composition before we connect the UI to the database.
+    9. I approve of the composition and layout. Connect the charts to the data. When populating these charts with data, make sure the max-height for the chart containers is 800px, it can be smaller, but not larger than that for any of the charts.
