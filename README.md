@@ -14,7 +14,9 @@ Interactive React + TypeScript prototype for telling the tile sales story across
 
 - `npm install`
 - `npm run db:seed` to generate and seed `data/tile_sales.db`
-- `npm run dev` to run the frontend
+- `npm run dev:api` to run the SQLite API server on `http://localhost:8787`
+- `npm run dev` to run the frontend only
+- `npm run dev:full` to run API and frontend together
 - `npm run build` to type-check and build production assets
 
 ## Notes
